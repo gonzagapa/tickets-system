@@ -5,20 +5,25 @@ create table Tickets  (
 	titulo nvarchar(300) not null,
 	descripccion nvarchar(max) not null constraint check_descripccion_vacio check (len(descripccion) > 3), 
 	estatus nvarchar(30) default 'Abierto' constraint check_estatus_ticket check(estatus = 'Abierto' OR estatus = 'Cerrado' OR estatus = 'Trabajando' ),
-	fechaCreacion datetime not null 
+	estaActivo bit not null default 1,
+	latitud decimal(10,8),
+	longitud decimal(10,8), 
+	fechaCreacion datetime not null default Getdate(),
 ); 
 
 create table DocumentosAdjuntos(
 	id uniqueidentifier DEFAULT NEWID() primary key,
 	ruta varchar(300) not null, 
 	nombreOriginal varchar(300) not null,
-	fechaCreacion datetime not null, 
+	fechaCreacion datetime not null default Getdate(), 
 	ticketId int not null, 
 	constraint fk_ticketId_DocumentosAdjuntos foreign key (ticketId) references Tickets(idTicket) on delete cascade
 );
 
 -- Modificaciones 
 alter table Tickets add estaActivo bit not null default 1; 
+alter table Tickets add latitud decimal(10,8);
+alter table Tickets add longitud decimal (11,8);
 alter table Tickets add constraint default_datetime default Getdate() for fechaCreacion;
 
 alter table DocumentosAdjuntos add constraint datetime_default default GetDate() for fechaCreacion;
