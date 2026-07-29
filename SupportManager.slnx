@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SupportManager.Api/SupportManager.Api.csproj" />
+  <Project Path="SupportManager.Data/SupportManager.Data.csproj" />
+  <Project Path="SupportManager.Web/SupportManager.Web.csproj" />
+</Solution>
