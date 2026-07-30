@@ -1,25 +1,24 @@
 ﻿using System.Data;
-using System.Diagnostics.CodeAnalysis;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using SupportManager.Data.Entities;
 using SupportManager.Data.Entities.Ticket;
 
 namespace SupportManager.Data.Repositories;
 
-public class TicketRepository : ITicketRepositories
+public class TicketRepository(IConfiguration configuration) : ITicketRepositories
 {
-    private readonly string _connectionString;
-
-    public TicketRepository(IConfiguration configuration)
-    {
-        _connectionString = configuration.GetConnectionString("DefaultConnection") 
+    private readonly string _connectionString = configuration.GetConnectionString("DefaultConnection")
                 ?? throw new ArgumentNullException("La cadena de conexión no existe.");
-    }
 
-    public Task BorrarTicketAsync(int idTicket)
+    public async Task BorrarTicketAsync(int idTicket)
     {
-        throw new NotImplementedException();
+        using IDbConnection db = new SqlConnection(_connectionString);
+        var parameters = new DynamicParameters();
+        parameters.Add("@idTicket", idTicket, dbType: DbType.Int32); 
+
+        await db.ExecuteAsync("p_EliminarTicket", commandType: CommandType.StoredProcedure);
     }
 
     public async Task<int> CrearTicketAsync(TicketLike ticket)
@@ -47,8 +46,25 @@ public class TicketRepository : ITicketRepositories
 
     }
 
-    public Task<Ticket> ObtenerTicketAsync(int idTicket)
+    public async Task<(Ticket Ticket, IEnumerable<DocumentoAdjunto> DocumentoAdjunto)> ObtenerTicketAsync(int idTicket)
     {
-        throw new NotImplementedException();
+        using IDbConnection db = new SqlConnection(_connectionString);
+        var parameters = new DynamicParameters(); 
+        parameters.Add("@IdTicket", idTicket, dbType: DbType.Int32);
+
+        using( var res =  await db.QueryMultipleAsync(
+        "p_ObtenerTicket"
+        ,parameters, 
+        commandType: CommandType.StoredProcedure))
+        {
+            //Los colocas de acuerdo al orden de select del procedimiento almancenado
+            var ticket = await res.ReadFirstOrDefaultAsync<Ticket>();
+
+            var documentos = await res.ReadAsync<DocumentoAdjunto>();
+
+            return (ticket!, documentos);
+        }
+
+
     }
 }

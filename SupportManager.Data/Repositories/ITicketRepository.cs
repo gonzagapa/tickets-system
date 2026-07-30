@@ -1,3 +1,4 @@
+using SupportManager.Data.Entities;
 using SupportManager.Data.Entities.Ticket;
 
 namespace SupportManager.Data.Repositories
@@ -16,7 +17,7 @@ namespace SupportManager.Data.Repositories
     }
     public interface ITicketRepositories
     {
-        Task<Ticket> ObtenerTicketAsync(int idTicket);
+        Task<(Ticket Ticket, IEnumerable<DocumentoAdjunto> DocumentoAdjunto)> ObtenerTicketAsync(int idTicket);
 
         Task<IEnumerable<Ticket>> ObtenerListaTicketsAsync();
 
