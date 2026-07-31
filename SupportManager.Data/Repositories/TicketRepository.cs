@@ -12,13 +12,25 @@ public class TicketRepository(IConfiguration configuration) : ITicketRepositorie
     private readonly string _connectionString = configuration.GetConnectionString("DefaultConnection")
                 ?? throw new ArgumentNullException("La cadena de conexión no existe.");
 
+    public async Task<bool> ActualizarEstatusTicket(int idTicket, string estatus)
+    {
+        using IDbConnection db = new SqlConnection(_connectionString);
+        var parameters = new DynamicParameters();
+        parameters.Add("@idTicket", idTicket, dbType: DbType.Int32); 
+        parameters.Add("@estatus", estatus, dbType: DbType.String);
+ 
+        await db.ExecuteAsync("p_ActualizarEstatusTicket", parameters, commandType: CommandType.StoredProcedure );
+
+        return true;
+    }
+
     public async Task BorrarTicketAsync(int idTicket)
     {
         using IDbConnection db = new SqlConnection(_connectionString);
         var parameters = new DynamicParameters();
         parameters.Add("@idTicket", idTicket, dbType: DbType.Int32); 
 
-        await db.ExecuteAsync("p_EliminarTicket", commandType: CommandType.StoredProcedure);
+        await db.ExecuteAsync("p_EliminarTicket", parameters,commandType: CommandType.StoredProcedure);
     }
 
     public async Task<int> CrearTicketAsync(TicketLike ticket)

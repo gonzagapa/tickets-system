@@ -14,6 +14,8 @@ namespace SupportManager.Api.Services
         Task<TicketDocumentosDTO> GetTicketInfoAsync(int idTicket);
 
         Task<bool> DeleteTicketAsync(int idTicket);
+
+        Task<bool> UpdateTicketStatus(int idTicket, string estatus);
     }
 
     public class TicketService(ITicketRepositories repository) : ITicketService
@@ -73,6 +75,19 @@ namespace SupportManager.Api.Services
                ticket.Longitud,
                 documentosDto
             );
+        }
+
+        public async Task<bool> UpdateTicketStatus(int idTicket, string estatus)
+        {
+            try
+            {
+                var res = await _repository.ActualizarEstatusTicket(idTicket, estatus);
+                return res;
+            }
+            catch (DbException)
+            {
+                return false;
+            }
         }
     }
 

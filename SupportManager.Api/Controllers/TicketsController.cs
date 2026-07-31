@@ -43,4 +43,13 @@ public class TicketController(ITicketService ticketService) : ControllerBase
 
         return NoContent();
     }
+
+    [HttpPatch("{id:int}")]
+    public async Task<IActionResult> UpdateTicket(int id, string status)
+    {
+        var res = await _ticketService.UpdateTicketStatus(id, status);
+        if(!res) return NotFound("Ticket not found");
+
+        return NoContent();
+    }
 }
