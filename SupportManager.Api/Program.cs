@@ -21,9 +21,12 @@ builder.Services.AddOpenApi(options =>
     });
 });
 builder.Services.AddControllers(); //register controllers
+builder.Services.AddValidation();
 
 builder.Services.AddScoped<ITicketRepositories, TicketRepository>();
+builder.Services.AddScoped<IDocumentosRepository, DocumentosRepository>();
 builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<IDocumentosService, DocumentosService>();
 
 var app = builder.Build();
 
