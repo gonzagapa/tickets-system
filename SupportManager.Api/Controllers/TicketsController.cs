@@ -1,15 +1,46 @@
 using Microsoft.AspNetCore.Mvc;
+using SupportManager.Api.Dtos;
+using SupportManager.Api.Services;
 
 namespace SupportManager.Api.Controllers; 
 
 [Route("api/[controller]")]
 [ApiController]
-public class TicketController : ControllerBase
+public class TicketController(ITicketService ticketService) : ControllerBase
 {
+    private readonly ITicketService _ticketService = ticketService;
+
     [HttpGet]
-    [Route("hello")]
-    public IActionResult GetEmployees()
+    public async Task<IActionResult> GetTickets()
     {
-        return Ok(new {Mesagge = "Hello world"});
+        var tickets = await _ticketService.GetAllTicketAsync();
+        return Ok(tickets);
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetTicket(int id)
+    {
+        var ticketDto = await _ticketService.GetTicketInfoAsync(id); 
+        return Ok(ticketDto); 
+    } 
+
+    [HttpPost]
+    public async Task<IActionResult> CreateTicket(TicketDTO dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        var ticketId = await _ticketService.CreateTicketAsync(dto);
+        return CreatedAtAction(nameof(GetTicket), new {id = ticketId}, dto);
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteTicket(int id)
+    {
+        var isDeleted = await _ticketService.DeleteTicketAsync(id);
+        if(!isDeleted) return NotFound(new {Message = "Ticket not found"});
+
+        return NoContent();
     }
 }
