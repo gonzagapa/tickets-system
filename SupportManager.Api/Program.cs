@@ -1,3 +1,4 @@
+using SupportManager.Api.Services;
 using SupportManager.Data.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddControllers(); //register controllers
 
 builder.Services.AddScoped<ITicketRepositories, TicketRepository>();
+builder.Services.AddScoped<ITicketService, TicketService>();
 
 var app = builder.Build();
 

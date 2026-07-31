@@ -1,5 +1,8 @@
+using System.Data.Common;
 using SupportManager.Api.Dtos;
+using SupportManager.Api.Mappers;
 using SupportManager.Data.Entities.Ticket;
+using SupportManager.Data.Repositories;
 
 namespace SupportManager.Api.Services
 {
@@ -8,31 +11,68 @@ namespace SupportManager.Api.Services
         Task<IEnumerable<TicketDTO>> GetAllTicketAsync();
         Task<int> CreateTicketAsync(TicketDTO ticket);
         
-        Task<TicketDocumentosDTO> GetTicketInfoAsync();
+        Task<TicketDocumentosDTO> GetTicketInfoAsync(int idTicket);
 
-        Task DeleteTicketAsync(int idTicket);
+        Task<bool> DeleteTicketAsync(int idTicket);
     }
 
-    public class TicketService : ITicketService
+    public class TicketService(ITicketRepositories repository) : ITicketService
     {
-        public Task<int> CreateTicketAsync(TicketDTO ticket)
+        private readonly  ITicketRepositories _repository = repository;
+        public async Task<int> CreateTicketAsync(TicketDTO ticket)
         {
-            throw new NotImplementedException();
+            try
+            {     
+                var res =  await _repository.CrearTicketAsync(ticket.MaptoTicketLike());
+                return res;
+            }
+            catch (DbException)
+            {
+                return 0;
+            }
         }
 
-        public Task DeleteTicketAsync(int idTicket)
+        public async Task<bool> DeleteTicketAsync(int idTicket)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await  _repository.BorrarTicketAsync(idTicket);
+                return true;
+            }
+            catch (DbException)
+            {
+                return false;
+            }
         }
 
-        public Task<IEnumerable<TicketDTO>> GetAllTicketAsync()
+        public async Task<IEnumerable<TicketDTO>> GetAllTicketAsync()
         {
-            throw new NotImplementedException();
+          var list = await _repository.ObtenerListaTicketsAsync(); 
+          return list.Select(item => new TicketDTO(
+                item.IdTicket, 
+                item.Titulo,
+                item.Descripccion,
+                item.Estatus,
+                item.Latitud,
+                item.Longitud
+            )); 
         }
 
-        public Task<TicketDocumentosDTO> GetTicketInfoAsync()
+        public async Task<TicketDocumentosDTO> GetTicketInfoAsync(int idTicket)
         {
-            throw new NotImplementedException();
+            var (ticket,documentos) = await _repository.ObtenerTicketAsync(idTicket);
+
+            var documentosDto = documentos.Select(item => new DocumentoAdjuntoDto(item.Id, item.Ruta,item.NombreOriginal, item.FechaCreacion, item.TicketId));
+
+            return new TicketDocumentosDTO(
+               ticket.IdTicket,
+               ticket.Titulo,
+               ticket.Descripccion,
+               ticket.Estatus,
+               ticket.Latitud,
+               ticket.Longitud,
+                documentosDto
+            );
         }
     }
 
