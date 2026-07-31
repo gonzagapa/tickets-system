@@ -35,7 +35,7 @@ begin
 end
 
 -- Actualiza estatus del ticket = 'Abierto', 'Cerrado' o 'Trabajando'
-Create proc p_ActualizarTicket(
+Create proc p_ActualizarEstatusTicket(
 	@idTicket int,
 	@estatus varchar(30)
 )
@@ -90,4 +90,6 @@ as
 begin
 	set nocount on;
 	insert into DocumentosAdjuntos(ruta,nombreOriginal,ticketId) values (@ruta, @nombreOriginal, @ticketId);
-end
+end 
+
+exec sp_rename 'p_ActualizarTicket', 'p_ActualizarEstatusTicket';

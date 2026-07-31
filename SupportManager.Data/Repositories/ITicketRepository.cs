@@ -24,5 +24,7 @@ namespace SupportManager.Data.Repositories
         Task<int> CrearTicketAsync(TicketLike ticket); 
 
         Task BorrarTicketAsync(int idTicket); 
+
+        //TODO: Metodo de Actualizar Ticket
     }
 }
