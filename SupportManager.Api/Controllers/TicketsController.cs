@@ -25,7 +25,7 @@ public class TicketController(ITicketService ticketService) : ControllerBase
     } 
 
     [HttpPost]
-    public async Task<IActionResult> CreateTicket(TicketDTO dto)
+    public async Task<IActionResult> CreateTicket([FromBody]TicketDTO dto)
     {
         if (!ModelState.IsValid)
         {
